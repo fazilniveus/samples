@@ -3,7 +3,7 @@ pipeline {
   agent any
 
 	tools {
-		nodejs "NodeJS"
+		maven "Maven"
 	}
 	
 	environment {
@@ -19,12 +19,19 @@ pipeline {
 			    	checkout scm
 		    }
 	    }
-	    stage('build') {
-              steps {
-                  echo 'building the software'
-                  sh 'npm install'
-              }
-          }
+	    stage('Build') {
+		    steps {
+			    sh 'mvn clean'
+		    }
+	    }
+			    
+	    stage('Test') {
+		    steps {
+			    echo "Testing..."
+			    sh 'mvn test'
+		    }
+	    }
+	    
 
 	    
 	    stage('Build Docker Image') {
@@ -40,7 +47,7 @@ pipeline {
  				 sh 'sudo  apt-get update'
  				  sh 'sudo apt-get install pack-cli'
 			   
-				  sh 'pack build app --builder paketobuildpacks/builder:full'
+				  sh 'pack build app --path samples/apps/java-maven --builder cnbs/sample-builder:bionic'
 			    	  sh "sudo docker tag app:latest gcr.io/tech-rnd-project/faz-todo:${env.BUILD_ID}"
 			    
 		    }
